@@ -6,3 +6,6 @@ The function `rescale_for_vis()` maps each number of a short list to a whole num
 >>> rescale_for_vis([0,-5,10,100.1])
 array([1., 0., 2., 4.])
 ```
+In a different example this is useful for uncramming the left lines:
+
+![picture of crammed lines](use_case.png)
