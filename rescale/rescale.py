@@ -4,7 +4,15 @@ import time
 
 __all__ = ["rescale_for_vis"]
 
-def rescale(values, atol=1e-10,verbose = 0):
+def rescale(values, relations=None, atol=1e-10,verbose = 0):
+    # relations = []
+    # relation = [] # sequential
+    # for i in range(len(values)-1):
+    #         relation.append([i+1,i])
+    #         relation.append([i,i+1])
+    # relations.append(relation)
+
+
     if len(values) <= 1:
         return np.array(values)
 
@@ -88,6 +96,17 @@ def rescale(values, atol=1e-10,verbose = 0):
             new_constraints = False
             #in practice len(positions) = 1
             for (p_row, p_col),(q_row,q_col) in zip(reversed(positions),reversed(qositions)):
+                
+                #remember the row has always the greater index
+                if relations is not None:
+                    move_on = True
+                    for relation in relations:
+                        if [p_row,p_col] in relation and [q_row, q_col] in relation:
+                            move_on = False
+                            break
+                    if move_on:
+                        continue
+
                 normal = np.zeros(n,dtype=int)
                 # #imprecise alternative
                 # normal = np.zeros(n,dtype=float)
@@ -167,7 +186,7 @@ def rescale(values, atol=1e-10,verbose = 0):
         print(normals)
     return M[:,0]
 
-def rescale_for_vis(data,atol=1e-10,verbose=0):
+def rescale_for_vis(data,relations=None,atol=1e-10,verbose=0):
     """data (numpy array or list): eiter a list of numbers or a list of list of numbers, that should be redistributed
     atol (flaot): absolute tolerance criteria for the termination of the algorithm
     verbose (0 or 1): 1: print some information, 0: print none
@@ -177,21 +196,64 @@ def rescale_for_vis(data,atol=1e-10,verbose=0):
     # be left to the user.
     if len(data) == 0:
         return np.array(data)
+
+
+
     list_got_wrapped = False
     if isinstance(data[0],list) or isinstance(data[0],np.ndarray):
-        pass
+        cuts = []
+        for values in data:
+            cuts.append(len(values))
+
+        #we add three types of relation
+        # - sequential
+        # - inner-group alias group
+        # - inter-group alias diffs_and_sizes
+        if relations:
+            raise ValueError("When specifing relations the data must be a flat list of numbers.")
+        relations = []
+
+        diffs_and_sizes = []
+        prev_cut = 0
+        for c in range(len(cuts)):
+            cut = cuts[c]
+            group = []
+            for i in range(prev_cut+1,prev_cut+cut):
+                for j in range(prev_cut,i):
+                    group.append([i,j])
+            relations.append(group)
+            #diffs_and_sizes.append([i,prev_cut])# only sizes of groups
+            prev_cut += cut
+
+        #diff_and_sizes
+        cumsum = np.cumsum([0]+cuts[:c+1])
+        for i in range(1,len(cumsum)):
+            for j in range(i):
+                diffs_and_sizes.append([cumsum[i]-1,cumsum[j]]) #diffs
+                if j > 0:
+                    diffs_and_sizes.append([cumsum[i-1],cumsum[j]-1]) #diffs + sizes
+        relations.append(diffs_and_sizes)
+
+        #sequential
+        sequential = []
+        N = sum(cuts)
+        for i in range(N-1):
+                sequential.append([i+1,i])
+        relations.append(sequential)
+
     else:
         data = np.array([data])
         list_got_wrapped = True
+        cuts = []
+        for values in data:
+            cuts.append(len(values))
 
-    cuts = []
-    for values in data:
-        cuts.append(len(values))
+
     values = np.hstack([*data])
     order = values.argsort()
     old_order = order.argsort()
     values = values[order]
-    levels = rescale(values,atol,verbose) #here is the action
+    levels = rescale(values,relations, atol,verbose) #here is the action
     levels = levels[old_order]
     data_levels = []
     prev_cut = 0
