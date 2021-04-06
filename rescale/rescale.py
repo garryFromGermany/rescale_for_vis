@@ -4,14 +4,7 @@ import time
 
 __all__ = ["rescale_for_vis"]
 
-def rescale(values, relations=None, atol=1e-10,verbose = 0):
-    # relations = []
-    # relation = [] # sequential
-    # for i in range(len(values)-1):
-    #         relation.append([i+1,i])
-    #         relation.append([i,i+1])
-    # relations.append(relation)
-
+def rescale(values, relations=None, atol=1e-10,verbose=0):
 
     if len(values) <= 1:
         return np.array(values)
@@ -189,7 +182,11 @@ def rescale_for_vis(data,relations=None,atol=1e-10,verbose=0):
     """data (numpy array or list): eiter a list of numbers or a list of list of numbers, that should be redistributed
     atol (flaot): absolute tolerance criteria for the termination of the algorithm
     verbose (0 or 1): 1: print some information, 0: print none
-    return either numpy array, or list of numpy arrays, depending on input data"""
+    relations (list): Provide lists of index pairs, each corresponding to a difference.
+                      The order of magnitudes is only preserved when differences are within the same list.
+                      e.g. [  [[1,0]]  [[2,1],[2,0]]]  [4,3],[5,4],[5,3],[5,2]]  ]
+                      If The difference [2,1] starts out smaller than [2,0] it will stay that way.
+    return either numpy array (in case the input was a list of numbers) or list of numpy arrays (input was a list of lists)"""
     #bundle multiple lists to processed together by rescale_for_vis.
     #TODO decide whether or not the bundling and cutting of lists should 
     # be left to the user.
