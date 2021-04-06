@@ -122,8 +122,7 @@ def rescale(values, relations=None, atol=1e-10,verbose = 0):
                     if normal@normal < 0:
                         raise RuntimeError("Encountered integer overflow. "
                                         + "Try a smaller list of numbers. "
-                                        + "This function is most useful for"
-                                        + " lists with fewer than 12 values.")
+                                        + "Or group the data into a list of lists.")
                     normal -= (normal@(a)) *(a)  // (a@a)
                     if normal@normal != 0:
                        normal = normal // np.gcd.reduce(normal) #avoid integer overflow
@@ -247,7 +246,6 @@ def rescale_for_vis(data,relations=None,atol=1e-10,verbose=0):
         cuts = []
         for values in data:
             cuts.append(len(values))
-
 
     values = np.hstack([*data])
     order = values.argsort()
