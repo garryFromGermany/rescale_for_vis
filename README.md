@@ -10,4 +10,4 @@ In a different example this is useful for uncramming the left lines:
 
 ![picture of crammed lines](use_case.png)
 
-Look at examples.ipynb for more inspiration.
+Look at use_cases.ipynb for more inspiration.
