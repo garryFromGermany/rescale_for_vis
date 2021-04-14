@@ -1,4 +1,10 @@
 # rescale_for_vis
+## Installation
+```
+pip install rescaleforvis
+```
+
+## Usage
 
 The function `rescale_for_vis()` maps each number of a short list to a whole number, such that the order of the magnitudes of the differences between any two numbers is preserved. 
 ```
